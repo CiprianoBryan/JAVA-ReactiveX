@@ -1,0 +1,50 @@
+###############################################################################
+################################ JAVA REACTIVO ################################
+###############################################################################
+
+- Observable: Es quien empuja los datos hacia su observador
+- Observer
+- Operator
+
+                       push
+     Observable  -----------------> Subscriber
+
+                      listen
+     Observable  -----------------> Observer
+
+Observer recibe una notificación junto con los datos y luego puede tomar cualquier acción.
+Y el Operator aquí puede realizar la operación de manipulación, transformación y 
+fusionar diferentes datos, incluso antes de que los datos lleguen a su Observador.
+
+                      Operator
+                       |   |    map()
+     Observable ------->    ------------> Observer
+
+
+################################ Construcción ################################
+
+- Creación de un Observable:
+  Observable.just(1, 2, 3, 4, 5).subscribe(new Consumer<Integer>() {
+    @Override
+        public void accept(Integer integer) throws Exception {
+            System.out.println(integer);
+        }
+  });
+
+  -> Replace with lambda:
+
+  Observable.just(1, 2, 3, 4, 5).subscribe(integer -> System.out.println(integer));
+
+  -> Replace lambda with method reference:
+
+  Observable.just(1, 2, 3, 4, 5).subscribe(System.out::println);
+
+
+
+################################ Dependencies #################################
+
+<dependency>
+  <groupId>io.reactivex.rxjava2</groupId>
+  <artifactId>rxjava</artifactId>
+  <version>2.2.8</version>
+</dependency>
