@@ -13,13 +13,12 @@
      Observable  -----------------> Observer
 
 Observer recibe una notificación junto con los datos y luego puede tomar cualquier acción.
-Y el Operator aquí puede realizar la operación de manipulación, transformación y 
+Y el Operator aquí puede realizar la operación de manipulación, transformación y
 fusionar diferentes datos, incluso antes de que los datos lleguen a su Observador.
 
                       Operator
                        |   |    map()
      Observable ------->    ------------> Observer
-
 
 ################################ Construcción ################################
 
@@ -39,6 +38,32 @@ fusionar diferentes datos, incluso antes de que los datos lleguen a su Observado
 
   Observable.just(1, 2, 3, 4, 5).subscribe(System.out::println);
 
+
+- Creación de un Thread:
+  Thread thread = new Thread(new Runnable() {
+    @Override
+        public void run() {
+            ...
+        }
+  });
+
+  -> Replace with lambda:
+  Thread thread = new Thread(() -> {
+    ...
+  });
+
+  -> Replace lambda with method reference:
+  En caso tuviesemos un método que se llamase dentro de un lambda, cuyos parámetros coinciden con los de la
+  función lamba esto podría refactorizarse, referenciando el método en vez de usar el lambda
+
+  * Lambda: Thread thread = new Thread(() -> { runIt(); });
+  * Function: public static void runIt() { ... }
+
+  * Method Reference: Thread thread = new Thread(Main::runIt);
+  Se coloca primero la clase donde pertenece el método, luego el método en sí.
+
+  Luego corremos el Threan llamando a su método run.
+  thread.run();
 
 
 ################################ Dependencies #################################
