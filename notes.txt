@@ -2,6 +2,120 @@
 ################################ JAVA REACTIVO ################################
 ###############################################################################
 
+- RxJava ¿Qué es?
+  Es una librería Java que implementa las ReactiveX (extensiones reactivas).
+  Se basa en la composición asíncrona y programas basados en eventos, mediante el uso de secuencias observables.
+
+- ¿Qué ventajas nos aporta?
+  * Legibilidad
+  * Simplifica la concurrencia
+  * Composición de operadores y funciones
+  * Permite añadir comportamiento al procesamiento asíncrono.
+      Ejecutar sentencias, rutinas cuando ocurre un evento y esto pasará a un hilo aparte.
+  * Permite utilizar programación síncrona y asíncrona.
+
+
+################################# Fundamentos #################################
+
+Para gestionar lo que ocurre, esta librería utiliza principalmente el patrón Observer.
+Patrón Observer: "Es un Patrón de diseño que define una dependencia del tipo uno-a-muchos entre objetos, de manera
+                     que cuando uno de los objetos cambia su estado, notifica este cambio a todos los dependientes".
+
+* Observer:
+Los elementos que son notificados, los que estan recibiendo los eventos.
+
+* Observable:
+Los observables son los elementos que notifican a todos sus "observers" los cambios.
+Para ello es necesario que estos "observer" se registren de alguna manera.
+
+Por ello para que la comunicación entre Observable y Observer pueda suceder, se usa un mecanismo de suscripción.
+Los "Observer" se suscriben a los "Observables" para que estos los notifiquen los eventos.
+
+################################ Push vs Pull:
+
+Estamos acostumbrados a un modelo donde le pedimos al productor un nuevo elemento cada vez que lo necesitamos (Pull)
+en vez de que el productor nos avise de cuando está disponible (Push). En ocasiones provoca bloquear al usuario
+hasta que esté disponible.
+
+            +-------------------------+---------------------------+
+            |   Iterable / Iterator   |    Observable / Observer  |
+            +-------------------------+---------------------------+
+            |        T next()         |          onNext(T)         |
+            |    throws Exception     |     onError(Throwable)    |
+            |        returns          |       onCompleted()       |
+            +-------------------------+---------------------------+
+
+################################ Eventos:
+
+Un elemento observable puede producir 3 tipos de eventos:
+* Evento Normal: Sucede con el onNext()
+* Evento de terminación: onCompleted()  -> Estados finales
+* Evento de error: onError()            -> Estados finales
+
+Cuando se suscribe a un Observable se indica los 3 métodos que se llamen al lanzarse cada evento.
+El Observer viene a ser una interfaz que agrupa estos 3 métodos.
+
+################################ Subscription:
+
+Cuando se realiza una subscripción, se crea un objeto Subscription que nos da acceso al control del flujo de
+información, permitiendo saber si hay elementos subscritos o terminar la conexión.
+
+public interface Subscription<t> {
+    boolean isUnsubscribed();
+    void unsubscribe();
+}
+
+Mientras que no haya elementos suscritos a los Observables no sucede nada.
+
+################################ Subscriber:
+
+Existe un elemento Subscriber que implementa ambas interfaces, Observer (lo que nos permite consumir los eventos
+del Observable) y Subscription (con lo que podremos controlar el flujo desde dentro del objeto).
+
+Code:
+
+Observable<String> telegram;
+
+Subscriber<String> subscriber = new Subscriber<String> {
+    @Override
+    public void onNext(String text) {
+        if (text.startsWith("STOP")) {
+            unsubscribe();
+        }
+    }
+
+    @Override
+    public void onCompleted(String text) {
+    }
+
+    @Override
+    public void onError(Throwable e) {
+        e.printStackTrace();
+    }
+};
+
+telegram.subscribe(subscriber);
+
+################################ Creación de Observables:
+
+* Vacíos: Observable.empty()
+* Error: Observable.error()
+* Con valores concretos: Observable.just(values)
+* Custom: Observable.create(details) -> Para crear observables que generen eventos programaticamente
+* De una lista: Observable.from()
+* Rango numérico: Observable.range(from, n)
+
+Observable.from(DayOfWeek.values()).subscribe(x -> System.out.println(x));
+Observable.range(1, 7).map(x -> DayOfWeek.of(x)).subscribe(x -> System.out.println(x));
+
+################################ Hot vs Cold Observables:
+
+Existe 2 tipos de Observables. Se distinguen principalmente sobre la manera en la que emiten los eventos.
+Los "Calientes" emiten eventos independientemente de si hay alguien escuchando, mientras que los
+"Frios" sólo lo hacen cuando tienen suscriptores, generando el evento para sus suscriptores en exclusiva.
+
+################################
+
 - Observable: Es quien empuja los datos hacia su observador
 - Observer
 - Operator
@@ -20,14 +134,24 @@ fusionar diferentes datos, incluso antes de que los datos lleguen a su Observado
                        |   |    map()
      Observable ------->    ------------> Observer
 
+
+################################ Observables #################################
+
+- Tipos de Observables:
+
+* Single:
+  Observable que solo emite un elemento o arroja un error.
+  El método onNext() y onComplete() de Observable se han combinado con onSuccess(), ya que la secuencia solo
+  tiene un elemento para emitir.
+
 ################################ Construcción ################################
 
 - Creación de un Observable:
   Observable.just(1, 2, 3, 4, 5).subscribe(new Consumer<Integer>() {
     @Override
-        public void accept(Integer integer) throws Exception {
-            System.out.println(integer);
-        }
+    public void accept(Integer integer) throws Exception {
+        System.out.println(integer);
+    }
   });
 
   -> Replace with lambda:
