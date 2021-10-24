@@ -114,6 +114,140 @@ Existe 2 tipos de Observables. Se distinguen principalmente sobre la manera en l
 Los "Calientes" emiten eventos independientemente de si hay alguien escuchando, mientras que los
 "Frios" sólo lo hacen cuando tienen suscriptores, generando el evento para sus suscriptores en exclusiva.
 
+################################ Operadores:
+
+RxJava tiene una serie de operadores que nos permiten realizar acciones sobre los elementos del Observable (eventos),
+dominarlos, encadenarlos y realizar composiciones de los mismos será lo que nos de potencia al usar esta librería.
+Alguno de estos son:
+
+* Operadores de Transformación:
+
+Aplican transformaciones a los elementos de origen de manera que emitamos objetos distintos a la salida.
+
+  - Map: Nos permite aplicar una transformación a un elementos de nuestro objeto para transformarlo en otra cosa.
+
+  ---------- 1 ------ 2 -------------------- 3 --------------|->
+                        map (x => 10 * x)
+  ---------- 10 ----- 20 ------------------- 30 -------------|->
+
+  Observable.range(1, 7)
+            .map(x -> x*10)
+            .subscribe(element -> System.out.println(element));
+
+
+  - Scan: Aplica una función a cada dato emitido y emite ese valor secuencialmente.
+
+  ---------- 1 ------ 2 ------ 3 ------ 4 -------- 5 --------------|->
+                        scan ((x, y) => x + y)
+  ---------- 1 ------ 3 ------ 6 ------ 10 ------- 15 -------------|->
+
+
+  - Reduce: Aplica una función a cada dato emitido y emite el resultado al finalizar.
+
+  ---------- 1 ------ 2 ------ 3 ------ 4 -------- 5 --------------|->
+                        reduce ((x, y) => x + y)
+  ------------------------------------------------ 15 -------------|->
+
+  - Buffer: Permite almacenar un grupo de resultado y emitirlo como grupo.
+
+  ---------- 1 ------ 2 ------ 3 ----------------- 4 ------ 5 ------- 6 ----------|----->
+             |        |        |                    |       |         |           |
+             v        v        v                    v       v         v           V
+       +----------------------------------------------------------------------------+
+       |                              BUFFER                                        |
+       +----------------------------------------------------------------------------+
+                               |                                       |          |
+                               V                                       V          V
+          +-----------------------+              +-----------------------+
+  ---------- 1 ------ 2 ------ 3 ----------------- 4 ------ 5 ------- 6 ----------|----->
+          +-----------------------+              +-----------------------+
+
+  Observable<String> generator1x2 = Observable.create(subscriber -> {
+    Random random = new Random();
+    List<String> values = Arrays.asList("1", "X", "2");
+
+    while (!subscriber.isUnsubscribed()) {
+      subscriber.onNext(values.get(random.nextInt(3)));
+    }
+    subscriber.onCompleted();
+  });
+
+  generator1x2.buffer(15).take(5)
+
+
+  - FlatMap: Transforma cada elemento del Observable en otra sucesión de observable, se suscribe y los une en un
+             único Observable.
+
+  ---------- 1 ------------------ 2 ------- 3 ------------------------------------|----->
+             |                    |         |                                     |
+             v                    v         V                                     v
+       +----------------------------------------------------------------------------+
+       |                    FlatMap {  x   ->  -- xx -- xx --|-->    }              |
+       +----------------------------------------------------------------------------+
+       +      |             |      |         |        |        |                   |
+             v             v      V         v        v        v                   v
+  ---------- 11 ---------- 11 --- 22 ------ 33 ----- 22 ----- 33 -----------------|----->
+
+
+  - GroupBy: Divide el observable inicial en un conjunto de observables en base a un criterio.
+
+  Observable.range(1, 100).groupBy(x -> x%2 == 0) : Esto creará 2 grupos de observables true y false (par / impar).
+
+
+  - Cache: Almacena todos los resultados y los repite siempre igual.
+
+  - Filter: Permite descartar ciertos elementos y emitir sólo un subconjunto de los elementos iniciales.
+
+  ---------- 2 ------ 30 ------ 22 ------ 5 -------- 60 ----- 1 -------|--->
+                        filter (x => x > 10)
+  ------------------- 30 ------ 22 ----------------- 60 ---------------|--->
+
+  Observable.range(1, 100).filter(a -> a%2 == 1)
+
+
+  - Distinct: Elimina los duplicados.
+
+  ---------- 1 ------ 2 ------ 2 ------ 1 -------- 3 ------------|--->
+                                 distinct
+  ---------- 1 ------ 2 -------------------------- 3 ------------|--->
+
+
+################################ Combinación de Observables:
+
+Es muy habitual trabajar con un conjunto de observacbles que queramos combinar de alguna manera. Para ello RxJava
+nos ofrece operadores que permiten combinarlos para emitir un resultado.
+
+  - Merge / Concat: Estos operadores se suscriben los observables que le pasemos como parámetro y unifica los eventos
+                  en un único stream de salida.
+
+  ---- 1 --- 2 -------- 3 --------- 4 ----|--->             ---- 1 --- 2 -------- 3 --|-------------------->
+
+  --------------- 5 ---------- 6 ---------|--->             --- 4 -- 5 --|--------------------------------->
+
+                     merge                                                  concat
+
+  ---- 1 --- 2 -- 5 --- 3 ---- 6 -- 4 ----|--->             ---- 1 --- 2 -------- 3 -- 4 -- 5 --|---------->
+
+  - Switch: Muestra los eventos del último observable que ha producido eventos. Cuando aparece un elemento en un
+            observable posterior, se borra la suscripción actual.
+
+  -----------------------------------------------------|----------->
+      |               |
+      |               +------- 10 ----- 20 ---- 30 -----|-->
+      |               |         |        |       |      |
+      +----1 ----- 2 -|---- 3 --|---|--> |       |      |
+      |    |       |  |         |        |       |      |
+      v    v       v  v         v        v       v      v
+    +-------------------------------------------------------------+
+    |                           switch                            |
+    +-------------------------------------------------------------+
+           |       |            |        |       |      |
+           v       v            v        v       v      v
+  -------- 1 ----- 2 ---------- 10 ----- 20 ---- 30 ----|----------->
+
+  - Zip
+  - CombineLatest / Amb
+
 ################################
 
 - Observable: Es quien empuja los datos hacia su observador
