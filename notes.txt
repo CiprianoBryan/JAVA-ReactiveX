@@ -248,6 +248,73 @@ nos ofrece operadores que permiten combinarlos para emitir un resultado.
   - Zip
   - CombineLatest / Amb
 
+################################ Temporales:
+
+Permiten alterar el tiempo en la generación de eventos.
+
+  - Timer: Crea un Observable para que emita un evento determinado en un tiempo predefinido.
+  - Delay: Retrasa la emisión de eventos por un determinado tiempo.
+  - Interval: Emite una secuencia de números infinitos separados por un intervalo definido.
+  - Repeat: Crea un Observable que repite un evento múltiples veces.
+
+################################ Retry:
+
+Permite reconectar cuando se produce un error.
+
+  ---------- 1 ----- 2 ------ X -------------- 1 ----- 2 ----- 3 ---------|------->
+        ^    |       |        |         ^      |       |       |          |
+        |    V       V        V         |      V       V       V          V
+    +-------------------------------------------------------------------------+
+    |                                  Retry                                  |
+    +-------------------------------------------------------------------------+
+             |       |                         |       |       |          |
+             V       V                         V       V       V          V
+  ---------- 1 ----- 2 ----------------------- 1 ----- 2 ----- 3 ---------|------->
+
+################################ Single:
+
+Emite un único evento o da error.
+
+  ----- 1 ----- 2 ------ 3 ---------|---->             ----- 1 -------------------|------------>
+        |       |        |          |                        |                    |
+        v       v        v          v                        v                    v
+    +----------------------------------------------------------------------------------------+
+    |                                      single                                            |
+    +----------------------------------------------------------------------------------------+
+                |                                                                 |
+                v                                                                 v
+  ------------- X ------------------|---->             -------------------------- 1 ----|------->
+
+################################ Try / Catch:
+
+RxJava nos permite varias formas de utilizar el try catch. Quizás una de las más legibles sea OnErrorResumeNext.
+
+  ----- 1 ----- 2 ------ 3 -------- X --------->
+        |       |        |          |
+        v       v        v          v
+    +--------------------------------------------------------------------+
+    |        onErrorResumeNext(  ---- 4 ---- 5 -------|----->  )         |
+    +--------------------------------------------------------------------+
+        |       |        |              |      |           |
+        v       v        v              v      v           v
+  ----- 1 ----- 2 ------ 3 ------------ 4 ---- 5 ----------|----->
+
+################################ Side Effects:
+
+Podemos añadir comportamiento a lo que pasa cuando suceden ciertos eventos. RxJava nos da muchos eventos a los que
+suscribirnos, pero no se pueden alterar:
+
+* doOnCompleted()       * doOnNext()           * doOnTerminate()
+* doOnEach()            * doOnRequest()        * doOnUnsubscribe()
+* doOnError()           * doOnSubscribe()
+
+################################ Concurrencia:
+
+Normalmente la concurrencia la va a decidir el que nos consume.
+
+Por ejemplo indicando subscribeOn(scheduler) o observerOn(scheduler),
+  se envía un scheduler indicando en que hilo quiere que se ejecute.
+
 ################################
 
 - Observable: Es quien empuja los datos hacia su observador
