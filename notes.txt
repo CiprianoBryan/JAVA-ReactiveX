@@ -345,6 +345,11 @@ fusionar diferentes datos, incluso antes de que los datos lleguen a su Observado
   El método onNext() y onComplete() de Observable se han combinado con onSuccess(), ya que la secuencia solo
   tiene un elemento para emitir.
 
+- Connectable Observable:
+  Con el método publish() de Observable podemos convertir un Observable en un Observable Connectable.
+  Este Observable no comienza su emisión justo después de que te suscribes.
+  Su emisión comienza al llamar al método connect()
+
 ################################ Construcción ################################
 
 - Creación de un Observable:

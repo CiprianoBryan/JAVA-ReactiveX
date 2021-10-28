@@ -5,7 +5,7 @@ import io.reactivex.Observable;
 import java.util.Arrays;
 import java.util.List;
 
-public class Main {
+public class CreateObservables1 {
     public static void main(String[] args) {
         createObservableWithJust();
         createObservableFromIterable();
