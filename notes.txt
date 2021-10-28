@@ -350,6 +350,12 @@ fusionar diferentes datos, incluso antes de que los datos lleguen a su Observado
   Este Observable no comienza su emisión justo después de que te suscribes.
   Su emisión comienza al llamar al método connect()
 
+################################ Métodos:
+
+* fromCallable():
+
+Se puede dar el caso:
+
 ################################ Construcción ################################
 
 - Creación de un Observable:
